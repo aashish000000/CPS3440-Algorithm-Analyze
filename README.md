@@ -132,19 +132,19 @@ The merge sort and the heap are written by us (no `sorted()` or `heapq` inside t
 
 | Maximum-subarray algorithm | Best | Average | Worst | Extra space |
 | --- | --- | --- | --- | --- |
-| Brute force | Œò(n¬≤) | Œò(n¬≤) | Œò(n¬≤) | Œò(n) |
-| Divide and conquer | Œò(n log n) | Œò(n log n) | Œò(n log n) | Œò(log n) |
-| Kadane | Œò(n) | Œò(n) | Œò(n) | Œò(1) |
+| Brute force | Θ(n²) | Θ(n²) | Θ(n²) | Θ(n) |
+| Divide and conquer | Θ(n log n) | Θ(n log n) | Θ(n log n) | Θ(log n) |
+| Kadane | Θ(n) | Θ(n) | Θ(n) | Θ(1) |
 
 | Top-K algorithm | Best | Average | Worst | Extra space |
 | --- | --- | --- | --- | --- |
-| Full sort (own merge sort) | Œò(n log n) | Œò(n log n) | Œò(n log n) | Œò(n) |
-| Binary heap of size K | Œò(n + k log k) | Œò(n log k) bound | Œò(n log k) | Œò(k) |
-| Quickselect | Œò(n) | Œò(n) | Œò(n¬≤) | Œò(log n) |
+| Full sort (own merge sort) | Θ(n log n) | Θ(n log n) | Θ(n log n) | Θ(n) |
+| Binary heap of size K | Θ(n + k log k) | Θ(n log k) bound | Θ(n log k) | Θ(k) |
+| Quickselect | Θ(n) | Θ(n) | Θ(n²) | Θ(log n) |
 
 ## Experimental method
 
-Prefixes of 1,000, 10,000, 100,000, and 1,000,000 records of the real data, five trials each, median reported. A second metric counts pair iterations, element reads, or comparisons exactly. Brute force is **executed only through 10,000 records**; its 100,000- and 1,000,000-record times are an n¬≤ projection from the 10,000-record median and are labelled *projected*, not measured. Reproduce with:
+Prefixes of 1,000, 10,000, 100,000, and 1,000,000 records of the real data, five trials each, median reported. A second metric counts pair iterations, element reads, or comparisons exactly. Brute force is **executed only through 10,000 records**; its 100,000- and 1,000,000-record times are an n² projection from the 10,000-record median and are labelled *projected*, not measured. Reproduce with:
 
 ```bash
 python3 -m analyzer.benchmark --data data/SP500_Historical_Data.csv --out benchmarks/results.json --figures docs/assets

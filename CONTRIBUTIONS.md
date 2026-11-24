@@ -7,7 +7,15 @@ _Aashish: responsibilities and resume bullets (added when his part is finished).
 <!-- END:aashish -->
 
 <!-- BEGIN:bhartendra -->
-_Bhartendra: responsibilities and resume bullets (added when his part is finished)._
+## Bhartendra Kumar Mandal — divide and conquer
+
+Responsibilities: the divide-and-conquer maximum-subarray algorithm in `analyzer/max_subarray.py` (the crossing scan and the earliest-window tie rule) and its tests.
+
+Also owns (can explain and defend): the benchmark runner and figures (`analyzer/benchmark.py`, `tests/test_benchmark.py`, `benchmarks/results.json`), and the site generator `docs/render.py` that builds the GitHub Pages site.
+
+Resume bullets:
+- Implemented the CLRS divide-and-conquer maximum-subarray algorithm, solved its recurrence T(n) = 2T(n/2) + Θ(n) with the Master Theorem, and checked it against the brute-force and Kadane implementations on the CLRS example and on real data.
+- Verified the Θ(n log n) bound with an exact operation count (20,951,424 element reads at one million records) and measured 1.28 s at that size with a wall-clock slope of 1.04.
 <!-- END:bhartendra -->
 
 <!-- BEGIN:aron -->
