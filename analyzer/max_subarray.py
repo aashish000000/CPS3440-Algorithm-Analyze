@@ -104,12 +104,30 @@ def divide_and_conquer(values: list[int]) -> Subarray:
     return _divide(values, 0, len(values) - 1)
 
 
+def kadane(values: list[int]) -> Subarray:
+    """Single left-to-right scan. Time O(n), extra space O(1)."""
+
+    best = EMPTY
+    current = 0
+    start = 0
+    for index, value in enumerate(values):
+        if current < 0:
+            current = 0
+            start = index
+        current += value
+        if current > 0:
+            best = _prefer(best, Subarray(current, start, index))
+    return best
+
+
 ALGORITHMS: dict[str, Callable[[list[int]], Subarray]] = {
     "brute_force": brute_force,
     "divide_and_conquer": divide_and_conquer,
+    "kadane": kadane,
 }
 
 COMPLEXITY = {
     "brute_force": "O(n^2)",
     "divide_and_conquer": "O(n log n)",
+    "kadane": "O(n)",
 }
