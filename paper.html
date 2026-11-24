@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Algorithmic efficiency on S&amp;P 500 history</title>
+<style>
+@page { size: letter; margin: 0.8in; }
+body { font-family: Georgia, "Times New Roman", serif; color: #1a1a1a; font-size: 11pt; line-height: 1.38; max-width: 7.1in; margin: 0.4in auto; }
+h1 { font-size: 16pt; text-align: center; margin-bottom: 4px; }
+.authors, .meta { text-align: center; margin: 0; font-size: 11pt; }
+h2 { font-size: 13pt; margin-top: 16px; }
+h3 { font-size: 11.5pt; margin-bottom: 4px; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9.5pt; }
+th, td { border: 1px solid #bbb; padding: 3px 5px; text-align: left; }
+th { background: #f0f0f0; }
+pre { font-family: "Courier New", monospace; font-size: 8.5pt; background: #f7f7f7; padding: 6px; white-space: pre-wrap; }
+img { width: 88%; display: block; margin: 8px auto 2px; }
+p.caption { font-size: 9.5pt; margin: 0 0 10px; color: #333; }
+p { margin: 0.45em 0; }
+h2, h3 { break-after: avoid; }
+table, img, pre { break-inside: avoid; }
+table, img { break-after: avoid; }
+</style>
+</head>
+<body>
+<h1>Finding One Trade and the Top Movers:<br>Maximum Subarray and Top-K on S&amp;P 500 History</h1>
+<p class="authors">Aashish Joshi, Aron Dardouri, and Bhartendra Kumar Mandal</p>
+<p class="meta">CPS 3440 Analysis of Algorithms, Kean University</p>
+
+<h2>Abstract</h2>
+<p>We compare algorithms for two problems on 26 years of real S&amp;P 500 data: the best single buy and later sell (the maximum-subarray problem) and the K largest movers (Top-K). For the first we implement brute force, divide and conquer, and Kadane's scan. For the second we implement a full merge sort, a size-K binary heap, and quickselect. All algorithms agree on every checked input. We time them on prefixes of 1,000 to 1,000,000 records (5 trials, median) and also count operations exactly. Measured costs follow the theoretical bounds: brute force took 12.74 s at 10,000 records against 2.912 ms for Kadane, and at one million records Kadane took 311.256 ms and divide and conquer 1.28 s. A size-10 heap beat the full sort on ordinary input (156.201 ms against 4.26 s) but not by the same margin on adversarial input. Brute force was not run beyond 10,000 records, and its larger times are an n² projection that we label as such.</p>
+
+<h2>1. Introduction</h2>
+<p>A price series is both a finance problem and an algorithms problem. Once daily changes replace prices, the best single buy and later sell is the maximum-subarray problem: find a contiguous block whose sum is at least that of every other block [1, 2]. Ranking records is the selection problem called Top-K. Both have correct algorithms whose asymptotic costs are far apart, which makes them a good test of how well theory predicts practice. The paper asks two questions. <strong>RQ1:</strong> do the three window algorithms agree, and does their running time follow &Theta;(n&sup2;), &Theta;(n log n), and &Theta;(n)? <strong>RQ2:</strong> when does a size-K heap beat a full sort, and what do best-case and worst-case inputs do to that claim? This is an analysis of algorithms, not price prediction.</p>
+
+<h2>2. Problem and dataset</h2>
+<p>Let P be adjusted closing prices. The change array is A[i] = P[i+1] &minus; P[i], stored as an integer number of micro-dollars so that every sum is exact. Then A[start] + &hellip; + A[end] = P[end+1] &minus; P[start], so the best trade is the maximum-sum block. Among equal windows we return the earliest start and then the earliest end, and if every window loses money the result is the empty trade (profit 0). All three window algorithms must return the same object. Top-K uses the total order (higher score, then earlier name). The command-line report ranks the 472 stocks by buy-and-hold return; the scaling study instead scores every day-to-day move in the file (2,703,059 records), because 472 items are too few for a scaling plot.</p>
+<p><strong>Dataset.</strong> We use the Kaggle file <code>SP500_Historical_Data.csv</code> [9]: 2,703,531 rows, 472 tickers, 3 January 2000 through 20 February 2026, with columns Ticker, Date, Open, High, Low, Close, Adj Close, and Volume. We use only Ticker, Date, and Adj Close. Rows with a blank ticker, date, or price are skipped, and prices are sorted by date within each ticker. The file is not redistributed with the code (about 143 MB); the repository gives download instructions, and its license is that of the Kaggle page.</p>
+
+<h2>3. Algorithms</h2>
+<pre>BRUTE(A):  prefix[i+1] = prefix[i] + A[i]
+           for start in 0..n-1: for end in start..n-1: consider prefix[end+1] - prefix[start]
+DIVIDE(lo, hi): if lo = hi: return A[lo] if positive else no trade
+           mid = (lo+hi)/2; return best of DIVIDE(lo,mid), DIVIDE(mid+1,hi), CROSS(lo,mid,hi)
+           CROSS = best suffix ending at mid + best prefix starting at mid+1
+KADANE(A): current = 0; for i: if current < 0: current = 0, start = i
+           current += A[i]; if current > 0: keep better of best and [start, i]
+SORT(items, k): merge sort by (-score, name); return first k
+HEAP(items, k): min-heap of size k, weakest at the root; push while it has room,
+           then replace the root when the next record is better; sort the k survivors
+QUICKSELECT(items, k): partition around a median-of-three pivot until the best k are in front</pre>
+<p><strong>Correctness.</strong> Brute force considers every nonempty window once, so the best one is optimal. For divide and conquer, an optimal window lies wholly in the left half, wholly in the right half, or crosses the midpoint; a crossing window is a suffix of the left half plus a prefix of the right half, and two linear scans maximize those pieces, so the best of the three candidates is optimal (induction on length). Kadane never needs to extend a negative running sum: if the running sum from an optimal start p were negative at some r inside the window, then [r+1, q] would beat it, a contradiction. The sort realizes the total order. The heap keeps the invariant that every record outside it is worse than its root, so a true top-K record can only be rejected if K better records are already inside, which is impossible [4]. Quickselect is Hoare's Find [3].</p>
+<table>
+<thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Extra space</th></tr></thead>
+<tbody>
+<tr><td>Brute force</td><td>&Theta;(n&sup2;)</td><td>&Theta;(n&sup2;)</td><td>&Theta;(n&sup2;)</td><td>&Theta;(n)</td></tr>
+<tr><td>Divide and conquer</td><td>&Theta;(n log n)</td><td>&Theta;(n log n)</td><td>&Theta;(n log n)</td><td>&Theta;(log n)</td></tr>
+<tr><td>Kadane</td><td>&Theta;(n)</td><td>&Theta;(n)</td><td>&Theta;(n)</td><td>&Theta;(1)</td></tr>
+<tr><td>Merge sort Top-K</td><td>&Theta;(n log n)</td><td>&Theta;(n log n)</td><td>&Theta;(n log n)</td><td>&Theta;(n)</td></tr>
+<tr><td>Heap of size k</td><td>&Theta;(n + k log k)</td><td>&Theta;(n log k) bound</td><td>&Theta;(n log k)</td><td>&Theta;(k)</td></tr>
+<tr><td>Quickselect</td><td>&Theta;(n)</td><td>&Theta;(n)</td><td>&Theta;(n&sup2;)</td><td>&Theta;(log n)</td></tr>
+</tbody></table>
+<p class="caption">Table 1. Time and extra space. The divide-and-conquer recurrence T(n) = 2T(n/2) + &Theta;(n) solves to &Theta;(n log n) by the Master Theorem [1, 5]. Kadane's linear bound is tight, because any correct algorithm must read every entry.</p>
+
+<h2>4. Experimental method</h2>
+<p>We time the production functions on prefixes of 1,000, 10,000, 100,000, and 1,000,000 records of the real data, 5 trials each, and report the median. A second metric counts work exactly: pair iterations, element reads, or comparisons. Brute force is executed only through 10,000 records, where one trial already takes seconds. Its times at 100,000 and 1,000,000 records are c&middot;n&sup2; with c fitted from the 10,000-record median, and the tables and figures label them projected. The Top-K study uses k = 10 on three arrangements of the same records: market order (the file's order), a best case with the true top K first, and a worst case with scores ascending so that every arrival replaces the root. All timings come from one laptop and vary by machine.</p>
+
+<h2>5. Results</h2>
+<table><thead><tr><th>Algorithm</th><th>1,000</th><th>10,000</th><th>100,000</th><th>1,000,000</th></tr></thead><tbody><tr><td>brute force</td><td>40.300 ms<br>ops 500,500</td><td>12.74 s<br>ops 50,005,000</td><td>21.2 min projected<br>ops 5.000e+09</td><td>35.4 h projected<br>ops 5.000e+11</td></tr><tr><td>divide and conquer</td><td>0.932 ms<br>ops 10,976</td><td>10.632 ms<br>ops 143,616</td><td>115.938 ms<br>ops 1,768,928</td><td>1.28 s<br>ops 20,951,424</td></tr><tr><td>kadane</td><td>0.285 ms<br>ops 1,000</td><td>2.912 ms<br>ops 10,000</td><td>30.330 ms<br>ops 100,000</td><td>311.256 ms<br>ops 1,000,000</td></tr></tbody></table>
+<p class="caption">Table 2. Median time and exact operation count of the window algorithms. Entries marked projected were not timed.</p>
+<img src="assets/max-subarray-time.png" alt="Runtime of the three maximum-subarray algorithms">
+<p class="caption">Figure 1. Median runtime. The dashed brute-force segment is the n&sup2; projection and was not timed.</p>
+<p>At 10,000 changes brute force took 12.74 s and Kadane 2.912 ms, so the linear scan was about 4373 times faster. Brute force would need about 21 minutes at 100,000 records and 35 hours at 1,000,000 by the projection. On the real Apple series (6,573 closes) all three algorithms returned the same window: buy 8 October 2002 at $0.20, sell 2 December 2025 at $285.92, profit $285.72 per share. Sort, heap, and quickselect returned the same top 10 buy-and-hold returns, led by NVDA.</p>
+<table><thead><tr><th>Algorithm</th><th>1,000</th><th>10,000</th><th>100,000</th><th>1,000,000</th></tr></thead><tbody><tr><td>full sort</td><td>1.452 ms<br>comps 8,691</td><td>19.686 ms<br>comps 119,994</td><td>245.184 ms<br>comps 1,532,412</td><td>4.26 s<br>comps 18,638,382</td></tr><tr><td>binary heap</td><td>0.190 ms<br>comps 1,198</td><td>1.605 ms<br>comps 10,254</td><td>15.426 ms<br>comps 100,335</td><td>156.201 ms<br>comps 1,000,400</td></tr></tbody></table>
+<p class="caption">Table 3. Top-K on market order, k = 10: median time and comparisons.</p>
+<img src="assets/heap-cases.png" alt="Best-case and worst-case heap times">
+<p class="caption">Figure 2. Heap wall-clock time on the prepared best-case and worst-case layouts. At one million records the best case does 1,000,027 comparisons, market order 1,000,400, and the worst case 6,066,634.</p>
+
+<h2>6. Theory versus observed performance</h2>
+<p>Where the model is a tight bound that does not depend on the data, the measurements follow it. The log-log slope of brute force from 1,000 to 10,000 records is 2.50 against the model value 2, and its operation count is exactly n(n+1)/2. Kadane's operation count is exactly n and its wall-clock slope from 1,000 to 1,000,000 records is 1.01. Divide-and-conquer reads grow a little faster than linear, as n log n requires (20,951,424 reads at one million records), while its wall-clock slope from 10,000 to 1,000,000 records is 1.04. Divide and conquer is also about 4.1 times slower than Kadane at one million records, because each Python call allocates a result: two algorithms with efficient bounds can have different constant factors. Peak traced memory matched the space column of Table 1.</p>
+<p>The heap is where the data matters, and it has to be read in two columns. On market order a late random record rarely beats the current root, so the heap makes about one comparison per record (1,000,400), against 1,000,027 when the top K are already first and 6,066,634 when every record is inserted. The merge sort has no such split, because it does &Theta;(n log n) comparisons whatever the order. The clock does not copy the comparison story exactly: the prepared best-case array took 368.085 ms, slower than market order, because the prepared arrays are permutations of Python objects and lose memory locality. An operation count describes the algorithm, while a clock describes the algorithm and the machine, so we report both.</p>
+
+<h2>7. Algorithmic efficiency versus computational hardness</h2>
+<p>Efficiency is a property of an algorithm and hardness is a property of a problem. Brute force for maximum subarray is correct and polynomial, but it is the wrong polynomial. Kadane shows that the problem is in P, so the slow runtime comes from the algorithm and not from the problem. A faster language or a better loop constant would not change that classification, and the dashed line in Figure 1 is a statement about this implementation in this interpreter.</p>
+<p>Hardness appears when the question changes shape. Cardinality-constrained mean-variance portfolio selection chooses at most m assets that are optimal for a quadratic objective of expected return and covariance, and it is NP-hard [7, 6]. Top-K maximizes a linear score with no interaction between the chosen names, which is why a heap of size K is enough. Once the score of a set is not the sum of the scores of its members, that argument fails. The right response to a slow algorithm is a better algorithm; the right response to a hard problem is an approximation, a heuristic with a stated gap, or a proof that a polynomial algorithm would collapse P and NP.</p>
+
+<h2>8. Limitations and ethical / societal considerations</h2>
+<p><strong>Limitations.</strong> Timings come from one machine and one Python interpreter and vary from run to run, especially the million-record sort. Brute force at 100,000 and 1,000,000 records is a projection, not a measurement. The dataset contains only companies that are in the index today, so it has survivorship bias [8]. It uses adjusted closes only and ignores trading costs and taxes. The "best trade" found with hindsight is not something an investor could have planned, and the Top-K scaling study ranks daily moves, not stocks.</p>
+<p><strong>Ethical and societal considerations.</strong> This work is analysis of algorithms, not financial advice and not price prediction. A reader could mistake a hindsight result such as "buy AAPL in 2002" for a strategy, so we state the limitations above wherever the result appears. The data is public, contains no personal information, and is not redistributed with the code. Efficient algorithms also lower the cost of analysis for everyone, but they do not remove the need to question what the data leaves out.</p>
+
+<h2>9. Course learning objective reflections</h2>
+<p><strong>A. Efficiency matters.</strong> At 10,000 records brute force took 12.74 s and Kadane 2.912 ms, about 4373 times faster, and the gap grows with n: the projection for brute force at one million records is about 35 hours against 311.256 ms for Kadane.</p>
+<p><strong>B. Complexity.</strong> Kadane does one pass with a constant amount of extra memory, so it is &Theta;(n) time and &Theta;(1) space in every case. Measurements agreed: the operation count is exactly n, the slope is 1.01, and peak traced memory stayed under 500 bytes.</p>
+<p><strong>C. Algorithms.</strong> We built a repertoire of six algorithms and compared them: brute force, divide and conquer, Kadane, merge sort, the size-K heap, and quickselect. The heap wins on ordinary input because k stays small while n grows, but its worst case is much slower than its best case, so the best algorithm depends on the input.</p>
+<p><strong>D. Hardness.</strong> Maximum subarray is in P because Kadane is a correct linear algorithm. A nearby market problem, cardinality-constrained portfolio selection, is NP-hard [7], and a faster implementation would not change that.</p>
+
+<h2>10. Conclusion</h2>
+<p>On the real S&amp;P 500 file the three window algorithms agree and the three Top-K algorithms agree. Measured running times follow the theoretical bounds when the bound is tight and independent of the data, and they show the finer best-case and worst-case behavior for the heap. We recommend Kadane for the best single trade and a size-K heap for Top-K on ordinary data. Brute force at one million records is a labelled projection, and the exact pair count n(n+1)/2 stands in for the trial we did not run. The code, tests, benchmark data, and figures are in the project repository.</p>
+
+<h2>11. Individual contributions</h2>
+<p><strong>Aashish Joshi:</strong> the brute-force algorithm, the price-loading code (<code>prices.py</code>), the command-line tool, the README, and the research notebook. <strong>Bhartendra Kumar Mandal:</strong> the divide-and-conquer algorithm, the benchmark runner and figures, and the website generator. <strong>Aron Dardouri:</strong> Kadane's algorithm, the Top-K code (merge sort, heap, quickselect), and the pseudocode and correctness notes. Details and resume bullets are in <code>CONTRIBUTIONS.md</code>.</p>
+
+<h2>References</h2>
+<p>[1] Cormen, T. H., Leiserson, C. E., Rivest, R. L., &amp; Stein, C. (2022). <em>Introduction to Algorithms</em> (4th ed.). MIT Press.</p>
+<p>[2] Bentley, J. (1984). Programming pearls: Algorithm design techniques. <em>Communications of the ACM, 27</em>(9), 865&ndash;873. https://doi.org/10.1145/358234.381162</p>
+<p>[3] Hoare, C. A. R. (1961). Algorithm 65: Find. <em>Communications of the ACM, 4</em>(7), 321&ndash;322. https://doi.org/10.1145/366622.366647</p>
+<p>[4] Williams, J. W. J. (1964). Algorithm 232: Heapsort. <em>Communications of the ACM, 7</em>(6), 347&ndash;348. https://doi.org/10.1145/512274.3734138</p>
+<p>[5] Bentley, J. L., Haken, D., &amp; Saxe, J. B. (1980). A general method for solving divide-and-conquer recurrences. <em>ACM SIGACT News, 12</em>(3), 36&ndash;44. https://doi.org/10.1145/1008861.1008865</p>
+<p>[6] Garey, M. R., &amp; Johnson, D. S. (1979). <em>Computers and Intractability: A Guide to the Theory of NP-Completeness</em>. W. H. Freeman.</p>
+<p>[7] Bienstock, D. (1996). Computational study of a family of mixed-integer quadratic programming problems. <em>Mathematical Programming, 74</em>(2), 121&ndash;140. https://doi.org/10.1007/BF02592208</p>
+<p>[8] Elton, E. J., Gruber, M. J., &amp; Blake, C. R. (1996). Survivor bias and mutual fund performance. <em>The Review of Financial Studies, 9</em>(4), 1097&ndash;1120. https://doi.org/10.1093/rfs/9.4.1097</p>
+<p>[9] Saleeby, J. S&amp;P 500 historical data (OHLC) [Data set]. Kaggle. https://www.kaggle.com/datasets/jacksaleeby/s-and-p500-historical-data</p>
+</body>
+</html>
