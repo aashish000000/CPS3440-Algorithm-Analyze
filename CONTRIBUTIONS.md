@@ -11,7 +11,15 @@ _Bhartendra: responsibilities and resume bullets (added when his part is finishe
 <!-- END:bhartendra -->
 
 <!-- BEGIN:aron -->
-_Aron: responsibilities and resume bullets (added when his part is finished)._
+## Aron Dardouri — Kadane's algorithm
+
+Responsibilities: Kadane's one-pass maximum-subarray algorithm in `analyzer/max_subarray.py` and its tests.
+
+Also owns (can explain and defend): the Top-K code in `analyzer/top_k.py` (merge sort, binary heap, quickselect) and `tests/test_top_k.py`, and the pseudocode and correctness notes in `docs/algorithms.md`. Top-K was originally planned for Brian Lucero, who left the project, so ownership moved to Aron.
+
+Resume bullets:
+- Implemented Kadane's Θ(n) time, Θ(1) space algorithm for the best single buy and sell on 26 years of S&P 500 data, and showed it agrees with the brute-force and divide-and-conquer answers on every tested input.
+- Measured 311 ms at one million records with a log-log slope of 1.01 across 1,000 to 1,000,000 records, about four times faster than divide and conquer, and used the result to recommend Kadane as the algorithm to ship.
 <!-- END:aron -->
 
 ## Shared work
