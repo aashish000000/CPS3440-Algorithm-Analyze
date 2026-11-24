@@ -1,6 +1,7 @@
+import random
 import unittest
 
-from analyzer.max_subarray import ALGORITHMS
+from analyzer.max_subarray import ALGORITHMS, brute_force, divide_and_conquer
 
 
 CLRS = [13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7]
@@ -36,6 +37,13 @@ class MaxSubarrayTests(unittest.TestCase):
             self.assertTrue(function([]).empty)
             self.assertEqual((function([4]).total, function([4]).start), (4, 0))
             self.assertTrue(function([-4]).empty)
+
+    def test_algorithms_agree_on_random_input(self) -> None:
+        rng = random.Random(3440)
+        for length in range(0, 40):
+            values = [rng.randint(-15, 15) for _ in range(length)]
+            expected = brute_force(values)
+            self.assertEqual(divide_and_conquer(values), expected)
 
 
 if __name__ == "__main__":
