@@ -57,10 +57,59 @@ def brute_force(values: list[int]) -> Subarray:
     return best
 
 
+def _crossing(values: list[int], low: int, mid: int, high: int) -> Subarray:
+    """Best subarray that starts in the left half and ends in the right half."""
+
+    best_left = None
+    left_start = mid
+    running = 0
+    for index in range(mid, low - 1, -1):
+        running += values[index]
+        if best_left is None or running > best_left or (running == best_left and index < left_start):
+            best_left = running
+            left_start = index
+
+    best_right = None
+    right_end = mid + 1
+    running = 0
+    for index in range(mid + 1, high + 1):
+        running += values[index]
+        if best_right is None or running > best_right or (running == best_right and index < right_end):
+            best_right = running
+            right_end = index
+
+    total = best_left + best_right
+    if total <= 0:
+        return EMPTY
+    return Subarray(total, left_start, right_end)
+
+
+def _divide(values: list[int], low: int, high: int) -> Subarray:
+    if low == high:
+        if values[low] > 0:
+            return Subarray(values[low], low, high)
+        return EMPTY
+    mid = (low + high) // 2
+    left = _divide(values, low, mid)
+    right = _divide(values, mid + 1, high)
+    cross = _crossing(values, low, mid, high)
+    return _prefer(left, _prefer(right, cross))
+
+
+def divide_and_conquer(values: list[int]) -> Subarray:
+    """CLRS divide-and-conquer maximum subarray. Time O(n log n)."""
+
+    if not values:
+        return EMPTY
+    return _divide(values, 0, len(values) - 1)
+
+
 ALGORITHMS: dict[str, Callable[[list[int]], Subarray]] = {
     "brute_force": brute_force,
+    "divide_and_conquer": divide_and_conquer,
 }
 
 COMPLEXITY = {
     "brute_force": "O(n^2)",
+    "divide_and_conquer": "O(n log n)",
 }
