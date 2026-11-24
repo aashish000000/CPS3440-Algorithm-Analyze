@@ -31,7 +31,7 @@ Python 3.12 and its standard library for all algorithms (`unittest` for tests); 
 
 ```bash
 git clone https://github.com/aashish000000/CPS3440-Algorithm-Analyze.git
-cd CPS3440-Algorithm-Analyze
+cd CPS3440-Stock-Algorithm-Analyzer
 python3 -m pip install -r requirements.txt
 ```
 
@@ -180,7 +180,7 @@ The measured log-log slopes follow the bounds: brute force 2.50 (theory 2), divi
 | Bhartendra Kumar Mandal | divide and conquer, benchmark runner, website generator |
 | Aron Dardouri | Kadane's algorithm, Top-K, pseudocode |
 
-Details and resume bullets are in [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md). The technical paper and the presentation will be added to this repository.
+Details and resume bullets are in [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md). The technical paper and the slides will be added to this repository later.
 
 ## Links
 

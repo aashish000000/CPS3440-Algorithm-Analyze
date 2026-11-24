@@ -3,7 +3,15 @@
 CPS 3440, Kean University. This file lists what each team member is responsible for and two resume bullets that describe their own work. The commits and pull requests in this repository show who pushed each part.
 
 <!-- BEGIN:aashish -->
-_Aashish: responsibilities and resume bullets (added when his part is finished)._
+## Aashish Joshi — brute force (baseline)
+
+Responsibilities: the brute-force maximum-subarray algorithm in `analyzer/max_subarray.py` and its tests.
+
+Also owns (can explain and defend): the data loading and command-line tool (`analyzer/prices.py`, `analyzer/__main__.py`, `analyzer/report.py`, `analyzer/fetch.py` and `tests/test_prices.py`), the README and repository layout, and the Colab notebook.
+
+Resume bullets:
+- Implemented a Θ(n²) brute-force baseline for the best-buy/best-sell problem in Python and benchmarked it against Θ(n log n) and Θ(n) algorithms on 2.7 million rows of S&P 500 data.
+- Measured 12.7 s at 10,000 records against 2.9 ms for a linear scan (about 4,400 times slower), fitted a log-log slope of 2.50 against the model value of 2, and projected 21 minutes at 100,000 and 35 hours at 1,000,000 records, labelled as projections and not measurements.
 <!-- END:aashish -->
 
 <!-- BEGIN:bhartendra -->
