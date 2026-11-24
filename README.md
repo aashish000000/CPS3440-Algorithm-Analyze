@@ -4,6 +4,7 @@ CPS 3440 group project at Kean University: comparing maximum-subarray and Top-K 
 
 Team: Aashish Joshi, Aron Dardouri, and Bhartendra Kumar Mandal.
 
+<!-- BEGIN:aashish-top -->
 ## The problem
 
 Given the daily closing prices of S&P 500 stocks, we ask two questions and answer each with several algorithms whose costs are far apart:
@@ -98,7 +99,9 @@ python3 -m unittest discover -s tests
 | `notebooks/` | The Google Colab research notebook |
 | `data/` | Dataset instructions (the CSV is not committed) |
 | `CONTRIBUTIONS.md` | Who is responsible for what |
+<!-- END:aashish-top -->
 
+<!-- BEGIN:aron -->
 ## Algorithms implemented
 
 Daily adjusted-close changes are integers (micro-dollars). The sum of a contiguous block of changes is the profit per share of one buy and one later sell. When every window loses money the best choice is to skip the trade. Ties keep the earliest window.
@@ -122,7 +125,9 @@ Daily adjusted-close changes are integers (micro-dollars). The sum of a contiguo
 The merge sort and the heap are written by us (no `sorted()` or `heapq` inside the algorithms; those appear only in the tests, as independent checkers).
 
 **Pseudocode, correctness arguments, and best, average, and worst-case bounds:** [`docs/algorithms.md`](docs/algorithms.md).
+<!-- END:aron -->
 
+<!-- BEGIN:bhartendra -->
 ## Complexity summary
 
 | Maximum-subarray algorithm | Best | Average | Worst | Extra space |
@@ -164,7 +169,9 @@ Measured on one laptop. Absolute times vary by machine; the shapes of the curves
 ## Theory versus observed
 
 The measured log-log slopes follow the bounds: brute force 2.50 (theory 2), divide and conquer 1.04 (theory just above 1), Kadane 1.01 (theory 1). The heap does about one comparison per record on market order, so it beats the full sort at every size we timed, but its worst case (every record enters the heap) is much slower than its best case.
+<!-- END:bhartendra -->
 
+<!-- BEGIN:aashish-bottom -->
 ## Team
 
 | Name | Part |
@@ -179,4 +186,6 @@ Details and resume bullets are in [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md). The te
 
 - Website: https://aashish000000.github.io/CPS3440-Algorithm-Analyze/
 - Colab notebook: [`notebooks/Stock_Algorithm_Analyzer.ipynb`](notebooks/Stock_Algorithm_Analyzer.ipynb)
+<!-- END:aashish-bottom -->
 
+![Uploading image.png…]()
