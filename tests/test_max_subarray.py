@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from analyzer.max_subarray import ALGORITHMS, brute_force, divide_and_conquer
+from analyzer.max_subarray import ALGORITHMS, brute_force, divide_and_conquer, kadane
 
 
 CLRS = [13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7]
@@ -44,6 +44,7 @@ class MaxSubarrayTests(unittest.TestCase):
             values = [rng.randint(-15, 15) for _ in range(length)]
             expected = brute_force(values)
             self.assertEqual(divide_and_conquer(values), expected)
+            self.assertEqual(kadane(values), expected)
 
 
 if __name__ == "__main__":
